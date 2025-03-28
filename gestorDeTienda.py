@@ -32,7 +32,6 @@ def create_table():# Conexión (si no existe, se crea)
         print("\n✅se creo la tabla productos correctamente")
       
 
-create_table()
 
 def insert_data():
     nombre = input("Nombre del producto: ")
@@ -49,6 +48,18 @@ def insert_data():
             )
             conexion.commit()
             print("\n✅ Producto añadido correctamente")
-    
 
-insert_data()
+def traer_datos():
+      # nombre = input("Nombre del producto: ")
+       #categoria = input("categoria del producto: ")
+
+    # Insertar en la base de datos
+       with sqlite3.connect("mi_tienda.db") as conexion:
+             cursor = conexion.cursor()
+             intruccion = f"select * from productos"
+             cursor.execute(intruccion)
+             datos = cursor.fetchall()
+             conexion.commit()
+             print(datos)
+
+traer_datos()

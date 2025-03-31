@@ -1,41 +1,36 @@
 import sqlite3
 
-# Conexión (si no existe, se crea)
-conexion = sqlite3.connect("mi_tienda.db")
-cursor = conexion.cursor()
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS productos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        precio REAL CHECK(precio > 0),
-        stock INTEGER DEFAULT 0,
-        categoria TEXT
-    )
-''')
+import sqlite3
 
 def create_table():
     """
-    Funcion que crea una tabla en la base de datos si no existe la tabla,
-    si no existe la base de datos se crea con el scrips.
-    :param parametros: no ultiliza.
-    :return: No returna ningun valor
-    """
-    with sqlite3.connect("mi_tienda.db") as conexion:# Conexión (si no existe, se crea)
-        cursor = conexion.cursor()#Este código crea un cursor, que es un objeto utilizado para ejecutar consultas SQL en la base de datos SQLite.
+    Función que crea la tabla 'productos' en la base de datos si no existe.
+    Si la base de datos no existe, se crea automáticamente.
 
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS productos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                precio REAL CHECK(precio > 0),
-                stock INTEGER DEFAULT 0,
-                categoria TEXT
-            )
-        ''')
-        conexion.commit()#Guarda los cambios
-        print("\n✅se creo la tabla productos correctamente")
-      
+    :return: No retorna ningún valor.
+    """
+    try:
+        with sqlite3.connect("mi_tienda.db") as conexion:  # Conexión (si no existe, se crea)
+            cursor = conexion.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS productos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL,
+                    precio REAL CHECK(precio > 0),
+                    stock INTEGER DEFAULT 0,
+                    categoria TEXT
+                )
+            ''')
+            
+            print("✅ Se verificó/creó la tabla 'productos' correctamente.")
+
+    except sqlite3.Error as e:
+        print(f"⚠️ Error al crear la tabla: {e}")
+
+# Llamar a la función si necesitas ejecutar la creación de la tabla
+create_table()
+    
 
 
 def insert_data():
@@ -63,12 +58,47 @@ def insert_data():
             print("-----------Producto agregado-----------")
             conexion.commit()#Guarda los cambios
 
-def traer_datos():
+def agregar_producto():
+    """
+    Pregunta al usuario si desea agregar un producto.
+    Si ingresa un valor inválido, muestra un mensaje de error y vuelve a preguntar.
+    no retorna nada
+    """
+    #Cuando el usuario ya inserto el primer producto le sale la siguiente pregunta"Agregar otro producto?\n1-Si\n2-No"
+    #si se equivoca e ingresa un valor no valido cambiara ban a true por ende el primer mensaje cambiara de 
+    #"Agregar producto?\n1-Si\n2-No\n-" a "Agregar otro producto ?\n1-Si\n2-No\n-"
+    ban = False  
+    ciclo = True
+    while ciclo:
+        try:
+            if ban:
+                i = int(input("Agregar otro producto ?\n1-Si\n2-No\n-"))
+            else:
+                i = int(input("Agregar producto?\n1-Si\n2-No\n-"))
+            if i == 1:
+                try: 
+                    i = 1
+                    while i != 2:#siempre que la respuesta sea diferente a 2 al menos que sea un valor invalido seguira en este bucle
+                        insert_data()
+                        i = int(input("Agregar otro producto?\n1-Si\n2-No\n-"))
+                        if i == 2:
+                            ciclo = False
+                except ValueError:
+                        print("⚠️ Ingrese un número válido (1 o 2).")
+                        ban = True    
+            elif i == 2:
+                ciclo = False
+        except ValueError:
+            print("⚠️ Ingrese un número válido (1 o 2).")
+
+
+def traer_datos(column_name = 1):
     """
     Funcion que trae todos los datos de la tabla productos
     :param parametros: no ultiliza.
     :return: no returna nada solo imprime los datos
     """
+    name_column = column_name
       # nombre = input("Nombre del producto: ") 
        #categoria = input("categoria del producto: ")
 
@@ -92,32 +122,13 @@ def menu():
     """
     while True:
         try:
-            eleccion = int(input("1-Insertar nuevos productos\n0-Salir\n-"))
+            eleccion = int(input("1-Insertar nuevos productos\n2-Consultar producto\n0-Salir\n-"))
             if eleccion == 0:
                 break
             if eleccion == 1:
-                #Cuando el usuario ya inserto el primer producto le sale la siguiente pregunta"Agregar otro producto?\n1-Si\n2-No"
-                #si se equivoca e ingresa un valor no valido cambiara ban a true por ende el primer mensaje cambiara de 
-                #"Agregar producto?\n1-Si\n2-No\n-" a "Agregar otro producto ?\n1-Si\n2-No\n-"
-                ban = False  
-                while True:
-                    if ban:
-                        i = int(input("Agregar otro producto ?\n1-Si\n2-No\n-"))
-                    else:
-                        i = int(input("Agregar producto?\n1-Si\n2-No\n-"))
-                    if i == 1:
-                        try: 
-                            i = 1
-                            while i != 2:#siempre que la respuesta sea diferente a 2 al menos que sea un valor invalido seguira en este bucle
-                                insert_data()
-                                i = int(input("Agregar otro producto?\n1-Si\n2-No\n-"))
-                            if i == 2:
-                                break
-                        except ValueError:
-                                print("⚠️ Ingrese un número válido (1 o 2).")
-                                ban = True
-                    else: 
-                        break
+                 agregar_producto()
+            elif eleccion == 2:
+                 print
         except ValueError:
                 print("⚠️ Ingrese un número válido.")   
                 
